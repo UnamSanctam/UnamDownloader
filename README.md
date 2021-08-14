@@ -1,7 +1,7 @@
 
 <img src="https://github.com/UnamSanctam/UnamDownloader/blob/master/UnamDownloader.png?raw=true">
 
-# UnamDownloader 1.0 - A free silent downloader
+# UnamDownloader 1.0.0 - A free silent downloader
 
 ## Main Features
 
