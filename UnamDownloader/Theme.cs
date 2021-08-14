@@ -1246,7 +1246,7 @@ public partial class MephRadioButton : Control
         G.DrawRectangle(new Pen(Color.FromArgb(55, 55, 55)), new Rectangle(1, 1, Height - 3, Height - 3));
         if (Checked)
         {
-            var fillGradient = new LinearGradientBrush(InnerRect, _accentColor, Color.FromArgb(_accentColor.R + 5, _accentColor.G + 5, _accentColor.B + 5), (short)90);
+            var fillGradient = new LinearGradientBrush(InnerRect, _accentColor, Color.FromArgb(_accentColor.R, _accentColor.G, _accentColor.B), (short)90);
             G.FillRectangle(fillGradient, InnerRect);
             G.DrawRectangle(new Pen(Color.FromArgb(25, 25, 25)), InnerRect);
         }

