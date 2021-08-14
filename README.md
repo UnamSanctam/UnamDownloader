@@ -6,7 +6,7 @@
 ## Main Features
 
 * .NET - Coded in C#, requires minimum .NET Framework 3.5
-* Silent - Downloads and executes (if enabled) files without any 
+* Silent - Downloads and executes (if enabled) files without any visible output
 * Tiny - Final downloader build is usually less than 10kb
 * Multiple files - Supports downloading any amount of files
 * Powershell - Does everything through powershell which currently greatly reduces detections
