@@ -3,6 +3,8 @@
 
 # UnamDownloader 1.1.1 - A free silent downloader
 
+A free silent (hidden) open source downloader (binder) that can be built as either a native C or managed .NET C# file. A downloader is essentially the same as a binder although it downloads the files instead of storing them in memory.
+
 ## Main Features
 
 * Native (C) - Can choose to build the downloader as a native (C) file, basically no run requirements
