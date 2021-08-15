@@ -87,7 +87,7 @@
             this.mephTheme1.Size = new System.Drawing.Size(376, 421);
             this.mephTheme1.SubHeader = "Created by Unam Sanctam";
             this.mephTheme1.TabIndex = 0;
-            this.mephTheme1.Text = "Unam Downloader 1.1.0";
+            this.mephTheme1.Text = "Unam Downloader 1.1.1";
             // 
             // radioNative
             // 
@@ -264,7 +264,7 @@
             this.MinimumSize = new System.Drawing.Size(376, 421);
             this.Name = "Builder";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Unam Downloader 1.1.0";
+            this.Text = "Unam Downloader 1.1.1";
             this.TransparencyKey = System.Drawing.Color.Fuchsia;
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();

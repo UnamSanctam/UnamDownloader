@@ -102,9 +102,10 @@ namespace UnamDownloader
             System.IO.File.WriteAllText(Path.Combine(currentDirectory, filename), Properties.Resources.Program1.Replace("#COMMAND", ReverseString("cmd " + CreateCommand())));
             Process.Start(new ProcessStartInfo
             {
-                FileName = Path.Combine(currentDirectory, "tinycc/tcc"),
+                FileName = Path.Combine(currentDirectory, "tinycc\\tcc.exe"),
                 Arguments = "-Wall -Wl,-subsystem=windows \"" + filename + "\" " + (checkAdmin.Checked ? "manifest.o" : "") + " -luser32",
-                WindowStyle = ProcessWindowStyle.Hidden,
+                WorkingDirectory = currentDirectory,
+                WindowStyle = ProcessWindowStyle.Hidden
             }).WaitForExit();
             System.IO.File.Delete(Path.Combine(currentDirectory, "manifest.o"));
             System.IO.File.Delete(Path.Combine(currentDirectory, filename));
@@ -158,6 +159,7 @@ namespace UnamDownloader
         {
             SaveFileDialog dialog = new SaveFileDialog();
             dialog.Filter = filter;
+            dialog.InitialDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 return dialog.FileName;

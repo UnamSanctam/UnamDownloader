@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Windows.Forms;
 
 namespace UnamDownloader
@@ -42,6 +43,7 @@ namespace UnamDownloader
         {
             OpenFileDialog dialog = new OpenFileDialog();
             dialog.Filter = "Exe Files (.exe)|*.exe|All Files (*.*)|*.*";
+            dialog.InitialDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 FileVersionInfo cloneInfo = FileVersionInfo.GetVersionInfo(dialog.FileName);

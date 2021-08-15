@@ -1,3 +1,6 @@
+### v1.1.1 (15/08/2021)
+* Fixed bug when building native files to another directory than the builder location
+* Added the builder location as the standard save location to make it easier to navigate
 ### v1.1.0 (14/08/2021)
 * Added option to build the downloader as a native C file, greatly reduces detections
 * Added a TinyCC compiler for native C builds
