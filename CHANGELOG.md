@@ -1,3 +1,7 @@
+### v1.2.0 (21/08/2021)
+* Changed it to compile native into 32-bit programs for wider compatibility
+* Added random string into the native code to randomize file checksum/hash on each build
+* Optimized and improved Windows Defender Exclusions
 ### v1.1.1 (15/08/2021)
 * Fixed save bug when building native files to another directory than the builder location
 * Added the builder location as the standard save location to make it easier to navigate
