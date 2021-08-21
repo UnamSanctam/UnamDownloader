@@ -8,7 +8,7 @@ A free silent (hidden) open source downloader (binder) that can be built as eith
 ## Main Features
 
 * Native (C) - Can choose to build the downloader as a native (C) 32-bit file, basically no run requirements
-* Managed (C#) - Can choose to build the downloader as a managed (.NET C#) file, requires at least .NET Framework 4.0
+* Managed (C#) - Can choose to build the downloader as a managed (.NET C#) file, requires at least .NET 4.0
 * Silent - Downloads and executes (if enabled) files without any visible output
 * Tiny - Final downloader build is usually less than 10kb (depending on the amount of files to download)
 * Multiple files - Supports downloading any amount of files
