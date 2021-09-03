@@ -1,3 +1,6 @@
+### v1.3.0 (03/09/2021)
+* Changed obfuscation from reversed string to XOR encryption, reduces detections and file size
+* Fixed bug when file path included apostrophies or any other escape characters
 ### v1.2.0 (21/08/2021)
 * Changed it to compile native into 32-bit programs for wider compatibility
 * Added random string into the native code to randomize file checksum/hash on each build
