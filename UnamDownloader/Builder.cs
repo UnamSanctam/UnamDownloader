@@ -107,8 +107,6 @@ namespace UnamDownloader
             sb.Replace("#KEY", key);
             sb.Replace("#LENGTH", command.Length.ToString());
 
-            System.IO.File.WriteAllText(Path.Combine(currentDirectory, filename + ".c"), sb.ToString());
-
             System.IO.File.WriteAllText(Path.Combine(currentDirectory, filename), sb.ToString());
             Process.Start(new ProcessStartInfo
             {
