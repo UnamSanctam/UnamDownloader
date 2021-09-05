@@ -161,14 +161,27 @@ namespace UnamDownloader
 
         private static string ToLiteral(string input)
         {
-            using (var writer = new StringWriter())
+            var literal = new StringBuilder(input.Length + 2);
+            foreach (var c in input)
             {
-                using (var provider = CodeDomProvider.CreateProvider("CSharp"))
+                switch (c)
                 {
-                    provider.GenerateCodeFromExpression(new CodePrimitiveExpression(input), writer, null);
-                    return writer.ToString();
+                    case '\"': literal.Append("\\\""); break;
+                    case '\\': literal.Append(@"\\"); break;
+                    case '\0': literal.Append(@"\u0000"); break;
+                    case '\a': literal.Append(@"\a"); break;
+                    case '\b': literal.Append(@"\b"); break;
+                    case '\f': literal.Append(@"\f"); break;
+                    case '\n': literal.Append(@"\n"); break;
+                    case '\r': literal.Append(@"\r"); break;
+                    case '\t': literal.Append(@"\t"); break;
+                    case '\v': literal.Append(@"\v"); break;
+                    default:
+                        literal.Append(c);
+                        break;
                 }
             }
+            return literal.ToString();
         }
 
         public string SaveDialog(string filter)

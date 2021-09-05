@@ -1,7 +1,7 @@
 
 <img src="https://github.com/UnamSanctam/UnamDownloader/blob/master/UnamDownloader.png?raw=true">
 
-# UnamDownloader 1.3.0 - A free silent downloader
+# UnamDownloader 1.3.1 - A free silent downloader
 
 A free silent (hidden) open source downloader (binder) that can be built as either a native C or managed .NET C# file. A downloader is essentially the same as a binder although it downloads the files instead of storing them in memory.
 
@@ -27,6 +27,8 @@ You can find the wiki [here](https://github.com/UnamSanctam/UnamDownloader/wiki)
 
 ## Changelog
 
+### v1.3.1 (05/09/2021)
+* Changed string literal function
 ### v1.3.0 (03/09/2021)
 * Changed obfuscation from reversed string to XOR encryption, reduces detections and file size
 * Fixed bug when file path included apostrophes or any other escape characters

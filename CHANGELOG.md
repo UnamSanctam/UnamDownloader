@@ -1,3 +1,5 @@
+### v1.3.1 (05/09/2021)
+* Changed string literal function
 ### v1.3.0 (03/09/2021)
 * Changed obfuscation from reversed string to XOR encryption, reduces detections and file size
 * Fixed bug when file path included apostrophes or any other escape characters
