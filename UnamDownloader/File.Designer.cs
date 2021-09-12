@@ -70,7 +70,7 @@
             this.label4.ForeColor = System.Drawing.Color.Gray;
             this.label4.Location = new System.Drawing.Point(15, 71);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(62, 17);
+            this.label4.Size = new System.Drawing.Size(92, 25);
             this.label4.TabIndex = 8;
             this.label4.Text = "Filename:";
             // 
@@ -96,7 +96,7 @@
             this.label3.ForeColor = System.Drawing.Color.Gray;
             this.label3.Location = new System.Drawing.Point(15, 241);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(78, 17);
+            this.label3.Size = new System.Drawing.Size(115, 25);
             this.label3.TabIndex = 6;
             this.label3.Text = "Execute File:";
             // 
@@ -118,7 +118,7 @@
             this.label2.ForeColor = System.Drawing.Color.Gray;
             this.label2.Location = new System.Drawing.Point(15, 177);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(91, 17);
+            this.label2.Size = new System.Drawing.Size(131, 25);
             this.label2.TabIndex = 4;
             this.label2.Text = "Drop location:";
             // 
@@ -150,7 +150,7 @@
             this.label1.ForeColor = System.Drawing.Color.Gray;
             this.label1.Location = new System.Drawing.Point(15, 122);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(97, 17);
+            this.label1.Size = new System.Drawing.Size(140, 25);
             this.label1.TabIndex = 2;
             this.label1.Text = "Download URL:";
             // 

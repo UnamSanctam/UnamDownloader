@@ -1,3 +1,11 @@
+### v1.4.0 (12/09/2021)
+* Added new custom minimal MinGW64 windres resource compiler
+* Added new Icon and Assembly Data options using the new resource compiler
+* Removed managed build type since native now has all the features managed had while also being better overall
+* Increased key complexity to avoid general key scans
+* Improved powershell code
+* Fixed general small bugs
+* Optimized code
 ### v1.3.1 (05/09/2021)
 * Changed string literal function
 ### v1.3.0 (03/09/2021)

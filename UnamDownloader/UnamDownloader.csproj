@@ -82,9 +82,13 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <None Include="app.config" />
-    <None Include="Resources\administrator.manifest-file" />
-    <None Include="Resources\manifest.o" />
-    <None Include="Resources\Program.cs" />
+    <None Include="Resources\administrator.manifest" />
+    <None Include="Resources\MinGW64.zip" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Theme.cs" />
     <Compile Include="Vanity.cs">
       <SubType>Form</SubType>
@@ -110,11 +114,6 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
@@ -125,6 +124,7 @@
   <ItemGroup>
     <Content Include="Resources\microsoft-admin.png" />
     <None Include="Resources\Program.c" />
+    <None Include="Resources\resource.rc" />
     <Content Include="unam.ico" />
   </ItemGroup>
   <ItemGroup>

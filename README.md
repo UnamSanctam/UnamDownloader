@@ -1,21 +1,20 @@
 
 <img src="https://github.com/UnamSanctam/UnamDownloader/blob/master/UnamDownloader.png?raw=true">
 
-# UnamDownloader 1.3.1 - A free silent downloader
+# UnamDownloader 1.4.0 - A free silent downloader
 
-A free silent (hidden) open source downloader (binder) that can be built as either a native C or managed .NET C# file. A downloader is essentially the same as a binder although it downloads the files instead of storing them in memory.
+A free silent (hidden) open-source downloader (binder) that can be built as a native C file. A downloader is essentially the same as a binder although it downloads the files instead of storing them in memory, you can also see my [UnamBinder](https://github.com/UnamSanctam/UnamBinder) for a normal file binder.
 
 ## Main Features
 
-* Native (C) - Can choose to build the downloader as a native (C) 32-bit file, basically no run requirements
-* Managed (C#) - Can choose to build the downloader as a managed (.NET C#) file, requires at least .NET 4.0
+* Native (C) - Builds the final executable as a native (C) 32-bit file, has basically no run requirements
 * Silent - Downloads and executes (if enabled) files without any visible output
 * Tiny - Final downloader build is usually less than 5kb (depending on the amount of files to download)
 * Multiple files - Supports downloading any amount of files
 * Powershell - Does everything through powershell which currently greatly reduces detections
 * Compatible - Supports all tested Windows version (Windows 7 to Windows 10) and all file types
 * Windows Defender exclusions - Can add exclusions into Windows Defender to ignore any detections from the downloaded files
-* Icon/Assembly - Supports adding an icon and assembly data to the built file with building a managed .NET C# build
+* Icon/Assembly - Supports adding an Icon and/or Assembly Data to the built file
 
 ## Downloads
 
@@ -27,6 +26,14 @@ You can find the wiki [here](https://github.com/UnamSanctam/UnamDownloader/wiki)
 
 ## Changelog
 
+### v1.4.0 (12/09/2021)
+* Added new custom minimal MinGW64 windres resource compiler
+* Added new Icon and Assembly Data options using the new resource compiler
+* Removed managed build type since native now has all the features managed had while also being better overall
+* Increased key complexity to avoid general key scans
+* Improved powershell code
+* Fixed general small bugs
+* Optimized code
 ### v1.3.1 (05/09/2021)
 * Changed string literal function
 ### v1.3.0 (03/09/2021)
