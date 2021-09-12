@@ -81,7 +81,7 @@
             this.mephTheme1.Size = new System.Drawing.Size(348, 327);
             this.mephTheme1.SubHeader = "Created by Unam Sanctam";
             this.mephTheme1.TabIndex = 0;
-            this.mephTheme1.Text = "Unam Downloader 1.4.0";
+            this.mephTheme1.Text = "Unam Downloader 1.4.1";
             // 
             // btnVanity
             // 
@@ -219,7 +219,7 @@
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "Builder";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Unam Downloader 1.4.0";
+            this.Text = "Unam Downloader 1.4.1";
             this.TransparencyKey = System.Drawing.Color.Fuchsia;
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.mephTheme1.ResumeLayout(false);

