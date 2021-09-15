@@ -229,7 +229,7 @@
             this.label1.ForeColor = System.Drawing.Color.Gray;
             this.label1.Location = new System.Drawing.Point(15, 193);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(79, 25);
+            this.label1.Size = new System.Drawing.Size(54, 17);
             this.label1.TabIndex = 11;
             this.label1.Text = "Version:";
             // 

