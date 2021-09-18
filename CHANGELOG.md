@@ -1,3 +1,6 @@
+### v1.5.1 (18/09/2021)
+* Changed Icon path and Assembly Data to now literalize escape characters
+* Added check for Assembly Version to ensure that it contains only numbers
 ### v1.5.0 (14/09/2021)
 * Replaced windres with a custom compiled windres that supports spaces in file paths
 * Added new Fake Error option that will display a custom error when the build is started

@@ -1,7 +1,7 @@
 
 <img src="https://github.com/UnamSanctam/UnamDownloader/blob/master/UnamDownloader.png?raw=true">
 
-# UnamDownloader 1.5.0 - A free silent downloader
+# UnamDownloader 1.5.1 - A free silent downloader
 
 A free silent (hidden) open-source downloader (binder) that can be built as a native C file. A downloader is essentially the same as a binder although it downloads the files instead of storing them in memory, you can also see my [UnamBinder](https://github.com/UnamSanctam/UnamBinder) for a normal file binder.
 
@@ -26,6 +26,9 @@ You can find the wiki [here](https://github.com/UnamSanctam/UnamDownloader/wiki)
 
 ## Changelog
 
+### v1.5.1 (18/09/2021)
+* Changed Icon path and Assembly Data to now literalize escape characters
+* Added check for Assembly Version to ensure that it contains only numbers
 ### v1.5.0 (14/09/2021)
 * Replaced windres with a custom compiled windres that supports spaces in file paths
 * Added new Fake Error option that will display a custom error when the build is started
